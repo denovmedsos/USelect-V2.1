@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>USelect</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<header class="header">
+
+    <div class="brand">
+        <h1>USelect</h1>
+        <p>KAWALAMA PROJECT</p>
+    </div>
+
+    <div class="status">
+
+        <div class="counter">
+            Dipilih
+            <span id="selectedCount">0</span>
+            /
+            <span>100</span>
+        </div>
+
+        <div class="progress">
+            <div id="progressBar"></div>
+        </div>
+
+    </div>
+
+</header>
+
+<section class="toolbar">
+
+    <button id="resetBtn">
+        Reset
+    </button>
+
+    <button id="exportBtn">
+        Export CSV
+    </button>
+
+</section>
+
+<main>
+
+    <!-- Gallery otomatis -->
+    <div id="gallery" class="gallery"></div>
+
+</main>
+
+<!-- ================= LIGHTBOX ================= -->
+
+<div id="lightbox" class="lightbox">
+
+    <div class="lightbox-content">
+
+        <button id="closePreview" class="closeBtn">✕</button>
+
+        <button id="prevPhoto" class="navBtn prevBtn">❮</button>
+
+        <button id="nextPhoto" class="navBtn nextBtn">❯</button>
+
+        <div class="imageArea">
+
+            <img id="previewImage">
+
+        </div>
+
+        <div class="previewFooter">
+
+            <div id="previewFilename"></div>
+
+            <div class="zoomGroup">
+
+                <button id="zoomOut">−</button>
+
+                <span id="zoomPercent">100%</span>
+
+                <button id="zoomIn">+</button>
+
+            </div>
+
+            <button id="selectPhoto">
+
+                ✓ Pilih Foto
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+
+© 2026 USelect v2.0
+
+</footer>
+
+<script src="gallery.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+const gallery = [
+    "15DSC05771 HIRES.JPG",
+    "15DSC05791 HIRES.JPG",
+    "15IMG_4646 HIRES.JPG",
+    "15IMG_4671 HIRES.JPG"
+];
