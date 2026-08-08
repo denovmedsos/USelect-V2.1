@@ -546,6 +546,41 @@ footer{
 }
 
 }
+
+/* FIX LIGHTBOX MOBILE - BUG #001 */
+
+@media (max-width: 768px) {
+
+    .imageArea {
+        padding: 70px 75px 120px 75px;
+    }
+
+    .imageArea img {
+        max-width: calc(100vw - 150px);
+        max-height: calc(100vh - 200px);
+        object-fit: contain;
+    }
+
+    .closeBtn,
+    .navBtn {
+        z-index: 999999;
+    }
+
+    .prevBtn {
+        left: 12px;
+    }
+
+    .nextBtn {
+        right: 12px;
+    }
+
+    .closeBtn {
+        top: 12px;
+        right: 12px;
+    }
+
+}
+
 /* BUG #001 - FINAL MOBILE FIX */
 
 @media (max-width: 768px) {
