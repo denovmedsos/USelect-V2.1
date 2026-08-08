@@ -546,3 +546,51 @@ footer{
 }
 
 }
+/* BUG #001 - FINAL MOBILE FIX */
+
+@media (max-width: 768px) {
+
+    .lightbox-content {
+        width: 100vw;
+        height: 100vh;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    .imageArea {
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
+        padding: 75px 75px 100px 75px;
+        overflow: hidden;
+    }
+
+    .imageArea img {
+        width: auto !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
+    }
+
+    .closeBtn {
+        z-index: 999999 !important;
+        top: 12px !important;
+        right: 12px !important;
+    }
+
+    .navBtn {
+        z-index: 999999 !important;
+        width: 45px !important;
+        height: 45px !important;
+    }
+
+    .prevBtn {
+        left: 10px !important;
+    }
+
+    .nextBtn {
+        right: 10px !important;
+    }
+
+}
