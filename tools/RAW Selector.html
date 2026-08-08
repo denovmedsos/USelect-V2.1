@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RAW Selector</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #f4f5f7;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 13px 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #aaa !important;
+            cursor: not-allowed;
+        }
+
+        #csvFile {
+            width: 100%;
+        }
+
+        #folderBtn {
+            width: 100%;
+            background: #2868b2;
+            color: white;
+        }
+
+        #folderBtn:hover {
+            background: #1f5795;
+        }
+
+        #scanBtn {
+            width: 100%;
+            background: #27ae60;
+            color: white;
+            margin-top: 10px;
+        }
+
+        #scanBtn:hover {
+            background: #219150;
+        }
+
+        #folderName {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #eef5ff;
+            color: #2868b2;
+            display: none;
+            word-break: break-word;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            background: #f4f5f7;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .success {
+            background: #eaf8f0;
+            color: #167a42;
+        }
+
+        .danger {
+            background: #fff0f0;
+            color: #c0392b;
+        }
+
+        .info {
+            background: #eef5ff;
+            color: #2868b2;
+        }
+
+        .warning {
+            background: #fff7df;
+            color: #9a6a00;
+        }
+
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        #missingList,
+        #movePreviewList {
+            margin-top: 15px;
+        }
+
+        #missingList ul,
+        #movePreviewList ul {
+            margin: 0;
+            padding-left: 25px;
+        }
+
+        #missingList li,
+        #movePreviewList li {
+            margin-bottom: 8px;
+            font-family: monospace;
+            word-break: break-word;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .safe-note {
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff7df;
+            color: #7a5a00;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        #moveBtn {
+            width: 100%;
+            background: #d35400;
+            color: white;
+            margin-top: 20px;
+        }
+
+        #moveBtn:hover {
+            background: #b94700;
+        }
+
+        .progress {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #eef5ff;
+            color: #2868b2;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .box {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>RAW Selector</h1>
+
+    <p class="subtitle">
+        Cocokkan foto pilihan klien dengan file RAW secara otomatis.
+    </p>
+
+
+    <!-- CSV -->
+
+    <div class="box">
+
+        <label for="csvFile">
+            1. Pilih CSV hasil pilihan klien
+        </label>
+
+        <input
+            type="file"
+            id="csvFile"
+            accept=".csv"
+        >
+
+    </div>
+
+
+    <!-- FOLDER -->
+
+    <div class="box">
+
+        <label>
+            2. Pilih Folder RAW
+        </label>
+
+        <button id="folderBtn">
+            PILIH FOLDER RAW
+        </button>
+
+        <div id="folderName"></div>
+
+        <p style="color:#777;font-size:13px;">
+            RAW tetap berada di HDD komputer lo.
+        </p>
+
+    </div>
+
+
+    <!-- SCAN -->
+
+    <div class="box">
+
+        <button id="scanBtn" disabled>
+            SCAN & CEK
+        </button>
+
+        <div id="status"></div>
+
+
+        <div id="results" class="hidden">
+
+            <!-- STATS -->
+
+            <div class="stats">
+
+                <div class="stat info">
+
+                    <span
+                        id="totalCount"
+                        class="stat-number"
+                    >
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        Foto pilihan klien
+                    </span>
+
+                </div>
+
+
+                <div class="stat success">
+
+                    <span
+                        id="foundCount"
+                        class="stat-number"
+                    >
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        RAW ditemukan
+                    </span>
+
+                </div>
+
+
+                <div class="stat danger">
+
+                    <span
+                        id="missingCount"
+                        class="stat-number"
+                    >
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        RAW tidak ditemukan
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- MISSING -->
+
+            <div
+                id="missingBox"
+                class="box hidden"
+                style="margin-top:20px;"
+            >
+
+                <h3>
+                    RAW Tidak Ditemukan
+                </h3>
+
+                <div id="missingList"></div>
+
+            </div>
+
+
+            <!-- DRY RUN -->
+
+            <div
+                id="movePreviewBox"
+                class="box hidden"
+                style="margin-top:20px;"
+            >
+
+                <h3>
+                    DRY RUN — Preview MOVE
+                </h3>
+
+                <p>
+                    Semua RAW pilihan ditemukan.
+                </p>
+
+                <div class="safe-note">
+                    ⚠️ Proses akan melakukan:
+                    <strong>COPY → VERIFIKASI → HAPUS SUMBER.</strong>
+                    RAW asli hanya dihapus setelah file tujuan
+                    berhasil diverifikasi.
+                </div>
+
+                <div id="movePreviewList"></div>
+
+                <button
+                    id="moveBtn"
+                    disabled
+                >
+                    MOVE KE SELECTED
+                </button>
+
+            </div>
+
+
+            <!-- PROGRESS -->
+
+            <div
+                id="progressBox"
+                class="box hidden"
+                style="margin-top:20px;"
+            >
+
+                <h3>
+                    Proses MOVE
+                </h3>
+
+                <div
+                    id="progressText"
+                    class="progress"
+                >
+                    Menunggu...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // ==========================================
+    // ELEMENT
+    // ==========================================
+
+    const csvInput =
+        document.getElementById("csvFile");
+
+    const folderBtn =
+        document.getElementById("folderBtn");
+
+    const folderName =
+        document.getElementById("folderName");
+
+    const scanBtn =
+        document.getElementById("scanBtn");
+
+    const statusBox =
+        document.getElementById("status");
+
+    const resultsBox =
+        document.getElementById("results");
+
+    const totalCount =
+        document.getElementById("totalCount");
+
+    const foundCount =
+        document.getElementById("foundCount");
+
+    const missingCount =
+        document.getElementById("missingCount");
+
+    const missingBox =
+        document.getElementById("missingBox");
+
+    const missingList =
+        document.getElementById("missingList");
+
+    const movePreviewBox =
+        document.getElementById("movePreviewBox");
+
+    const movePreviewList =
+        document.getElementById("movePreviewList");
+
+    const moveBtn =
+        document.getElementById("moveBtn");
+
+    const progressBox =
+        document.getElementById("progressBox");
+
+    const progressText =
+        document.getElementById("progressText");
+
+
+    // ==========================================
+    // DATA
+    // ==========================================
+
+    let csvFile = null;
+
+    let rawFolderHandle = null;
+
+    let foundFiles = [];
+
+
+    // ==========================================
+    // RAW EXTENSIONS
+    // ==========================================
+
+    const RAW_EXTENSIONS = [
+
+        "CR2",
+        "CR3",
+        "NEF",
+        "ARW",
+        "RAF",
+        "ORF",
+        "RW2",
+        "DNG",
+        "PEF",
+        "SRW",
+        "RAW"
+
+    ];
+
+
+    // ==========================================
+    // CSV
+    // ==========================================
+
+    csvInput.addEventListener(
+        "change",
+        function () {
+
+            csvFile =
+                this.files[0] || null;
+
+            updateScanButton();
+
+        }
+    );
+
+
+    // ==========================================
+    // FOLDER PICKER
+    // ==========================================
+
+    folderBtn.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                rawFolderHandle =
+                    await window.showDirectoryPicker({
+                        mode: "readwrite"
+                    });
+
+
+                folderName.textContent =
+                    "Folder terpilih: " +
+                    rawFolderHandle.name;
+
+
+                folderName.style.display =
+                    "block";
+
+
+                showStatus(
+                    "Folder RAW berhasil dipilih.",
+                    "success"
+                );
+
+
+                updateScanButton();
+
+
+            } catch (error) {
+
+                if (
+                    error.name === "AbortError"
+                ) {
+
+                    return;
+
+                }
+
+
+                console.error(error);
+
+
+                showStatus(
+                    "Folder RAW gagal dipilih.",
+                    "danger"
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // ENABLE SCAN
+    // ==========================================
+
+    function updateScanButton() {
+
+        scanBtn.disabled =
+            !(csvFile && rawFolderHandle);
+
+    }
+
+
+    // ==========================================
+    // SCAN
+    // ==========================================
+
+    scanBtn.addEventListener(
+        "click",
+        async function () {
+
+            scanBtn.disabled = true;
+
+            moveBtn.disabled = true;
+
+            foundFiles = [];
+
+
+            resultsBox.classList.add(
+                "hidden"
+            );
+
+            missingBox.classList.add(
+                "hidden"
+            );
+
+            movePreviewBox.classList.add(
+                "hidden"
+            );
+
+            progressBox.classList.add(
+                "hidden"
+            );
+
+
+            missingList.innerHTML = "";
+
+            movePreviewList.innerHTML = "";
+
+
+            try {
+
+                // ==============================
+                // BACA CSV
+                // ==============================
+
+                showStatus(
+                    "Sedang membaca CSV...",
+                    "info"
+                );
+
+
+                const csvText =
+                    await csvFile.text();
+
+
+                const selectedNames =
+                    parseCSV(csvText);
+
+
+                // ==============================
+                // SCAN RAW
+                // ==============================
+
+                showStatus(
+                    "Sedang mencari RAW di seluruh subfolder...",
+                    "info"
+                );
+
+
+                const rawMap =
+                    new Map();
+
+
+                await scanFolder(
+                    rawFolderHandle,
+                    rawMap
+                );
+
+
+                // ==============================
+                // MATCH
+                // ==============================
+
+                const found = [];
+
+                const missing = [];
+
+                const duplicateMatches = [];
+
+
+                selectedNames.forEach(
+                    function(name) {
+
+                        const baseName =
+                            getBaseName(name);
+
+
+                        if (
+                            rawMap.has(baseName)
+                        ) {
+
+                            const files =
+                                rawMap.get(baseName);
+
+
+                            if (
+                                files.length > 1
+                            ) {
+
+                                duplicateMatches.push({
+                                    selected: name,
+                                    files: files
+                                });
+
+                            }
+
+
+                            found.push({
+                                selected: name,
+                                files: files
+                            });
+
+                        } else {
+
+                            missing.push(name);
+
+                        }
+
+                    }
+                );
+
+
+                // ==============================
+                // STATISTIK
+                // ==============================
+
+                totalCount.textContent =
+                    selectedNames.length;
+
+                foundCount.textContent =
+                    found.length;
+
+                missingCount.textContent =
+                    missing.length;
+
+
+                resultsBox.classList.remove(
+                    "hidden"
+                );
+
+
+                // ==============================
+                // MISSING
+                // ==============================
+
+                if (
+                    missing.length > 0
+                ) {
+
+                    showStatus(
+                        "ADA RAW YANG TIDAK DITEMUKAN. MOVE DIBLOKIR.",
+                        "danger"
+                    );
+
+
+                    missingBox.classList.remove(
+                        "hidden"
+                    );
+
+
+                    const ul =
+                        document.createElement("ul");
+
+
+                    missing.forEach(
+                        function(name) {
+
+                            const li =
+                                document.createElement("li");
+
+
+                            li.textContent =
+                                name;
+
+
+                            ul.appendChild(li);
+
+                        }
+                    );
+
+
+                    missingList.appendChild(
+                        ul
+                    );
+
+                }
+
+
+                // ==============================
+                // DUPLICATE
+                // ==============================
+
+                else if (
+                    duplicateMatches.length > 0
+                ) {
+
+                    showStatus(
+                        "ADA NAMA RAW YANG DUPLIKAT. MOVE DIBLOKIR.",
+                        "danger"
+                    );
+
+
+                    movePreviewBox.classList.remove(
+                        "hidden"
+                    );
+
+
+                    const warning =
+                        document.createElement("div");
+
+
+                    warning.className =
+                        "safe-note";
+
+
+                    warning.textContent =
+                        "Nama file yang sama ditemukan di lebih dari satu folder. Program sengaja tidak memilih secara otomatis agar RAW yang salah tidak ikut dipindahkan.";
+
+
+                    movePreviewList.appendChild(
+                        warning
+                    );
+
+
+                    const ul =
+                        document.createElement("ul");
+
+
+                    duplicateMatches.forEach(
+                        function(item) {
+
+                            const li =
+                                document.createElement("li");
+
+
+                            li.textContent =
+                                item.selected +
+                                " → ditemukan " +
+                                item.files.length +
+                                " file";
+
+
+                            ul.appendChild(li);
+
+                        }
+                    );
+
+
+                    movePreviewList.appendChild(
+                        ul
+                    );
+
+                }
+
+
+                // ==============================
+                // SEMUA AMAN
+                // ==============================
+
+                else {
+
+                    showStatus(
+                        "SEMUA RAW DITEMUKAN. SIAP MOVE.",
+                        "success"
+                    );
+
+
+                    movePreviewBox.classList.remove(
+                        "hidden"
+                    );
+
+
+                    const title =
+                        document.createElement("p");
+
+
+                    title.innerHTML =
+                        "<strong>" +
+                        found.length +
+                        " file siap dipindahkan ke SELECTED:</strong>";
+
+
+                    movePreviewList.appendChild(
+                        title
+                    );
+
+
+                    const ul =
+                        document.createElement("ul");
+
+
+                    found.forEach(
+                        function(item) {
+
+                            item.files.forEach(
+                                function(fileInfo) {
+
+                                    foundFiles.push(
+                                        fileInfo
+                                    );
+
+
+                                    const li =
+                                        document.createElement("li");
+
+
+                                    li.textContent =
+                                        fileInfo.fileHandle.name +
+                                        "  →  SELECTED/" +
+                                        fileInfo.fileHandle.name;
+
+
+                                    ul.appendChild(li);
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                    movePreviewList.appendChild(
+                        ul
+                    );
+
+
+                    const ready =
+                        document.createElement("div");
+
+
+                    ready.className =
+                        "safe-note";
+
+
+                    ready.innerHTML =
+                        "✅ Semua file ditemukan. Tidak ada file yang hilang dan tidak ada nama RAW yang duplikat.";
+
+
+                    movePreviewList.appendChild(
+                        ready
+                    );
+
+
+                    moveBtn.disabled =
+                        false;
+
+                }
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                showStatus(
+                    "Terjadi error saat membaca folder RAW.",
+                    "danger"
+                );
+
+            }
+
+
+            scanBtn.disabled =
+                false;
+
+        }
+    );
+
+
+    // ==========================================
+    // MOVE AMAN
+    // ==========================================
+
+    moveBtn.addEventListener(
+        "click",
+        async function () {
+
+            if (
+                !rawFolderHandle ||
+                foundFiles.length === 0
+            ) {
+
+                return;
+
+            }
+
+
+            const confirmed =
+                confirm(
+                    "Yakin mau MEMINDAHKAN " +
+                    foundFiles.length +
+                    " RAW ke folder SELECTED?\n\n" +
+                    "Program akan COPY → VERIFY → HAPUS SUMBER."
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            moveBtn.disabled =
+                true;
+
+            scanBtn.disabled =
+                true;
+
+
+            progressBox.classList.remove(
+                "hidden"
+            );
+
+
+            let successCount = 0;
+
+            let errorCount = 0;
+
+
+            try {
+
+                // ==================================
+                // BUAT FOLDER SELECTED
+                // ==================================
+
+                progressText.textContent =
+                    "Membuat folder SELECTED...";
+
+
+                const selectedFolder =
+                    await rawFolderHandle.getDirectoryHandle(
+                        "SELECTED",
+                        {
+                            create: true
+                        }
+                    );
+
+
+                // ==================================
+                // PROSES SATU PER SATU
+                // ==================================
+
+                for (
+                    const fileInfo of foundFiles
+                ) {
+
+                    const sourceFile =
+                        fileInfo.fileHandle;
+
+
+                    const sourceParent =
+                        fileInfo.parentHandle;
+
+
+                    try {
+
+                        progressText.textContent =
+                            "Menyalin: " +
+                            sourceFile.name;
+
+
+                        // ==========================
+                        // BACA FILE SUMBER
+                        // ==========================
+
+                        const sourceFileObject =
+                            await sourceFile.getFile();
+
+
+                        const sourceSize =
+                            sourceFileObject.size;
+
+
+                        // ==========================
+                        // BUAT FILE TUJUAN
+                        // ==========================
+
+                        const targetFile =
+                            await selectedFolder.getFileHandle(
+                                sourceFile.name,
+                                {
+                                    create: true
+                                }
+                            );
+
+
+                        // ==========================
+                        // TULIS FILE
+                        // ==========================
+
+                        const writable =
+                            await targetFile.createWritable();
+
+
+                        await writable.write(
+                            sourceFileObject
+                        );
+
+
+                        await writable.close();
+
+
+                        // ==========================
+                        // VERIFIKASI UKURAN
+                        // ==========================
+
+                        progressText.textContent =
+                            "Memverifikasi: " +
+                            sourceFile.name;
+
+
+                        const targetFileObject =
+                            await targetFile.getFile();
+
+
+                        const targetSize =
+                            targetFileObject.size;
+
+
+                        // ==========================
+                        // CEK UKURAN
+                        // ==========================
+
+                        if (
+                            sourceSize !== targetSize
+                        ) {
+
+                            throw new Error(
+                                "Ukuran file tujuan berbeda dengan sumber."
+                            );
+
+                        }
+
+
+                        // ==========================
+                        // HAPUS SUMBER
+                        // ==========================
+
+                        progressText.textContent =
+                            "Menghapus sumber: " +
+                            sourceFile.name;
+
+
+                        await sourceParent.removeEntry(
+                            sourceFile.name
+                        );
+
+
+                        successCount++;
+
+
+                    } catch (fileError) {
+
+                        console.error(
+                            "GAGAL:",
+                            sourceFile.name,
+                            fileError
+                        );
+
+
+                        errorCount++;
+
+
+                        // RAW SUMBER TIDAK DIHAPUS
+                    }
+
+
+                    // ==========================
+                    // UPDATE PROGRESS
+                    // ==========================
+
+                    progressText.textContent =
+                        "Progress: " +
+                        (successCount + errorCount) +
+                        " / " +
+                        foundFiles.length;
+
+                }
+
+
+                // ==================================
+                // HASIL AKHIR
+                // ==================================
+
+                if (
+                    errorCount === 0
+                ) {
+
+                    progressText.textContent =
+                        "✅ SELESAI. " +
+                        successCount +
+                        " RAW berhasil dipindahkan ke SELECTED.";
+
+
+                    showStatus(
+                        "MOVE BERHASIL. RAW asli sudah dipindahkan ke SELECTED.",
+                        "success"
+                    );
+
+
+                } else {
+
+                    progressText.textContent =
+                        "⚠️ " +
+                        successCount +
+                        " berhasil, " +
+                        errorCount +
+                        " gagal.";
+
+
+                    showStatus(
+                        "Ada file yang gagal dipindahkan. RAW yang gagal tetap dipertahankan.",
+                        "warning"
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                progressText.textContent =
+                    "❌ Proses MOVE gagal.";
+
+
+                showStatus(
+                    "Proses MOVE gagal. RAW sumber tidak dihapus.",
+                    "danger"
+                );
+
+
+                moveBtn.disabled =
+                    false;
+
+            }
+
+
+            scanBtn.disabled =
+                false;
+
+        }
+    );
+
+
+    // ==========================================
+    // SCAN FOLDER RECURSIVE
+    // ==========================================
+
+    async function scanFolder(
+        directoryHandle,
+        rawMap
+    ) {
+
+        for await (
+            const entry of directoryHandle.values()
+        ) {
+
+            // ==============================
+            // ABAIKAN SELECTED
+            // ==============================
+
+            if (
+                entry.kind === "directory" &&
+                entry.name.toUpperCase() === "SELECTED"
+            ) {
+
+                continue;
+
+            }
+
+
+            // ==============================
+            // FILE
+            // ==============================
+
+            if (
+                entry.kind === "file"
+            ) {
+
+                const extension =
+                    getExtension(
+                        entry.name
+                    );
+
+
+                if (
+                    !RAW_EXTENSIONS.includes(
+                        extension
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const baseName =
+                    getBaseName(
+                        entry.name
+                    );
+
+
+                if (
+                    !rawMap.has(baseName)
+                ) {
+
+                    rawMap.set(
+                        baseName,
+                        []
+                    );
+
+                }
+
+
+                rawMap
+                    .get(baseName)
+                    .push({
+                        fileHandle: entry,
+                        parentHandle: directoryHandle
+                    });
+
+            }
+
+
+            // ==============================
+            // SUBFOLDER
+            // ==============================
+
+            if (
+                entry.kind === "directory"
+            ) {
+
+                await scanFolder(
+                    entry,
+                    rawMap
+                );
+
+            }
+
+        }
+
+    }
+
+
+    // ==========================================
+    // CSV PARSER
+    // ==========================================
+
+    function parseCSV(text) {
+
+        return text
+
+            .split(/\r?\n/)
+
+            .map(
+                line =>
+                line.trim()
+            )
+
+            .filter(
+                line =>
+                line.length > 0
+            )
+
+            .map(
+                line => {
+
+                    let value =
+                        line.split(",")[0];
+
+
+                    value =
+                        value
+                        .trim()
+                        .replace(
+                            /^["']|["']$/g,
+                            ""
+                        );
+
+
+                    return value;
+
+                }
+            )
+
+            .filter(
+                name => {
+
+                    const lower =
+                        name.toLowerCase();
+
+
+                    return (
+                        lower !== "filename" &&
+                        lower !== "file" &&
+                        lower !== "name"
+                    );
+
+                }
+            );
+
+    }
+
+
+    // ==========================================
+    // BASE NAME
+    // ==========================================
+
+    function getBaseName(
+        filename
+    ) {
+
+        const cleanName =
+            filename
+            .split("\\")
+            .pop()
+            .split("/")
+            .pop()
+            .trim()
+            .toUpperCase();
+
+
+        const lastDot =
+            cleanName.lastIndexOf(".");
+
+
+        if (
+            lastDot === -1
+        ) {
+
+            return cleanName;
+
+        }
+
+
+        return cleanName.substring(
+            0,
+            lastDot
+        );
+
+    }
+
+
+    // ==========================================
+    // EXTENSION
+    // ==========================================
+
+    function getExtension(
+        filename
+    ) {
+
+        const cleanName =
+            filename
+            .split("\\")
+            .pop()
+            .split("/")
+            .pop()
+            .trim()
+            .toUpperCase();
+
+
+        const lastDot =
+            cleanName.lastIndexOf(".");
+
+
+        if (
+            lastDot === -1
+        ) {
+
+            return "";
+
+        }
+
+
+        return cleanName.substring(
+            lastDot + 1
+        );
+
+    }
+
+
+    // ==========================================
+    // STATUS
+    // ==========================================
+
+    function showStatus(
+        message,
+        type
+    ) {
+
+        statusBox.textContent =
+            message;
+
+
+        statusBox.style.display =
+            "block";
+
+
+        statusBox.className =
+            "";
+
+
+        statusBox.classList.add(
+            type
+        );
+
+    }
+
+</script>
+
+</body>
+</html>
